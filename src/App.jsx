@@ -165,7 +165,7 @@ function scoreV1(row, criteria, destinationDomain) {
 
 // ─── V2 Claude Enhancement ────────────────────────────────────────────────────
 async function claudeEnhance(results, destination, apiKey = "") {
-  const weak = results.filter(r => r.verdict !== "approve");
+  const weak = results.filter(r => r.verdict === "approve" || r.verdict === "review");
   if (!weak.length) return results;
 
   const headers = { "Content-Type": "application/json" };
@@ -182,12 +182,14 @@ ${destContext}
 Domains to evaluate (with metrics):
 ${weak.map(r => `- ${r.domain} | DR: ${r.dr} | Traffic: ${r.organic_traffic}/mo | Ref domains: ${r.referring_domains} | Dofollow%: ${r["dofollow_%"]}% | Outgoing domains: ${r.outgoing_domains} | Country: ${r.country} | Issues: ${r.issues.join("; ")} | Flags: ${r.flags.join("; ")}`).join("\n")}
 
-For each domain assess:
-1. Topical relevance to the destination (casino/iGaming)
-2. Whether it looks like a genuine editorial site or a link network
-3. Geo relevance to the destination's target market
-4. Anchor text recommendations (branded, keyword, partial match, generic — suggest 2-3 specific anchors)
-5. Recommended destination URL on ${destination.domain} for the link
+For each domain:
+1. Assess topical relevance to the destination (casino/iGaming)
+2. Assess whether it looks like a genuine editorial site or a link network
+3. Assess geo relevance to the destination's target market
+4. Suggest 3 specific anchor texts (branded, target keyword, partial match or generic)
+5. Recommend the most relevant destination URL on ${destination.domain} for the link
+
+ANCHOR TEXT AND DESTINATION URL ARE REQUIRED FOR EVERY DOMAIN.
 
 Return ONLY a raw JSON array, no markdown:
 [{"domain":"...","verdict":"approve|review|reject","aiReasoning":"2 sentences","anchors":["anchor1","anchor2","anchor3"],"destinationUrl":"https://...","confidence":"high|medium|low"}]`;
